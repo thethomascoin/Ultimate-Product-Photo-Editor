@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { editImageWithPrompt } from './services/geminiService';
-import { fileToBase64 } from './utils/fileUtils';
+import { editImageWithPrompt } from './services/geminiService.ts';
+import { fileToBase64 } from './utils/fileUtils.ts';
 
 // --- Helper Icon Components (defined outside App to prevent re-creation) ---
 
@@ -15,6 +15,12 @@ const SparklesIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
   </svg>
+);
+
+const DownloadIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+    </svg>
 );
 
 const Loader = () => (
@@ -66,6 +72,8 @@ export default function App() {
     try {
       const { base64, mimeType } = await fileToBase64(originalImageFile);
       const generatedImageBase64 = await editImageWithPrompt(base64, mimeType, prompt);
+      
+      const fileExtension = mimeType.split('/')[1] || 'png';
       setEditedImage(`data:${mimeType};base64,${generatedImageBase64}`);
     } catch (e) {
       const err = e as Error;
@@ -117,7 +125,20 @@ export default function App() {
 
         {/* Edited Image Panel */}
         <div className="flex flex-col space-y-4">
-          <h2 className="text-lg font-semibold text-slate-300">Edited Image</h2>
+          <div className="flex justify-between items-center">
+             <h2 className="text-lg font-semibold text-slate-300">Edited Image</h2>
+            {editedImage && !isLoading && (
+              <a
+                href={editedImage}
+                download={`edited-image.${editedImage.split(';')[0].split('/')[1] || 'png'}`}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-500 transition-colors duration-200"
+                aria-label="Download edited image"
+              >
+                <DownloadIcon className="w-4 h-4" />
+                <span>Download</span>
+              </a>
+            )}
+          </div>
           <div className="w-full aspect-square bg-slate-800/50 rounded-xl border border-slate-700 flex items-center justify-center overflow-hidden">
             {isLoading ? (
               <Loader />
