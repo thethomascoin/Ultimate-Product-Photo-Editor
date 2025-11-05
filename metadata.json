@@ -1,0 +1,5 @@
+{
+  "name": "AI Photo Editor",
+  "description": "An application to edit product photos, remove backgrounds, and apply filters using simple text instructions, powered by Gemini 2.5 Flash Image.",
+  "requestFramePermissions": []
+}
